@@ -9,7 +9,7 @@ git clone -b v${CLAPACK_VERSION} --depth 1 https://github.com/alphacep/clapack
 make -C OpenBLAS ONLY_CBLAS=1 DYNAMIC_ARCH=1 TARGET=NEHALEM USE_LOCKING=1 USE_THREAD=0 NUM_THREADS=512 all
 make -C OpenBLAS PREFIX=$(pwd)/OpenBLAS/install install
 mkdir -p clapack/BUILD && cd clapack/BUILD && cmake .. \
-    && make -j 10 -C F2CLIBS \
-    && make -j 10 -C BLAS \
-    && make -j 10 -C SRC \
+    && make -j ${CORES:-1} -C F2CLIBS \
+    && make -j ${CORES:-1} -C BLAS \
+    && make -j ${CORES:-1} -C SRC \
     && find . -name "*.a" | xargs cp -t ../../OpenBLAS/install/lib
