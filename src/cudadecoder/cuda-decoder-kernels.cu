@@ -19,6 +19,10 @@
 #include "cuda-decoder-kernels.h"
 #include "cuda-decoder-kernels-utils.h"
 
+#ifndef FLT_MAX
+#define FLT_MAX 340282346638528859811704183484516925440.0f
+#endif
+
 namespace kaldi {
 namespace cuda_decoder {
 
@@ -422,8 +426,8 @@ __global__ void nonemitting_preprocess_and_contract_kernel(
 }
 
 // GetAdaptiveBeam is used in ExpandArcs
-// When we generate new tokens by traversing arcs, 
-// we can end up creating a lot of tokens, if the current frame 
+// When we generate new tokens by traversing arcs,
+// we can end up creating a lot of tokens, if the current frame
 // generated loglikelihoods too uniform for instance (we don't have
 // any good tokens that will reduce the cutoff, so we end up generating
 // a lot of tokens)
@@ -434,7 +438,7 @@ __global__ void nonemitting_preprocess_and_contract_kernel(
 // Please note that when processing tokens, we usually have dozens of thousands of threads
 // generating tokens. Those are already in flight, and will not reload the beam immediatly.
 // It means that we need to start reducing the beam as soon as we detect that we are generating more tokens than
-// expected. 
+// expected.
 // We can configure the function f using KALDI_CUDA_DECODER_ADAPTIVE_BEAM_STATIC_SEGMENT
 // and KALDI_CUDA_DECODER_ADAPTIVE_BEAM_NSTEPS.
 // We will use default_beam for the first max_tokens_per_frame/KALDI_CUDA_DECODER_ADAPTIVE_BEAM_STATIC_SEGMENT
@@ -449,9 +453,9 @@ __global__ void nonemitting_preprocess_and_contract_kernel(
 //               |                |          _________
 //            0 _|   static_segment                   _________
 //               |________________________________________________
-//               |                                             |     
+//               |                                             |
 //   aux_q_end=  0                                    max_tokens_per_frame
-// We have :     
+// We have :
 // static_segment = max_tokens_per_frame/KALDI_CUDA_DECODER_ADAPTIVE_BEAM_STATIC_SEGMENT
 // and KALDI_CUDA_DECODER_ADAPTIVE_BEAM_NSTEPS = 3
 __device__ void UpdateAdaptiveBeam(const DeviceParams &cst_dev_params,
@@ -539,7 +543,7 @@ __global__ void reset_for_frame_and_estimate_cutoff_kernel(
                    acoustic_cost;  // +0.0f, best prev cost is normalized to 0
     }
 
-    KALDI_CUDA_DECODER_1D_KERNEL_LOOP(bin_id, KALDI_CUDA_DECODER_HISTO_NBINS) { 
+    KALDI_CUDA_DECODER_1D_KERNEL_LOOP(bin_id, KALDI_CUDA_DECODER_HISTO_NBINS) {
       cst_dev_params.d_histograms.lane(ilane)[bin_id] = 0; // reset for this frame
     }
 
@@ -1295,7 +1299,7 @@ __global__ void compute_costs_histogram_kernel(DeviceParams cst_dev_params,
                       .y;
         CostType cost = orderedIntToFloat(int_cost);
         CostType extra = cost - min_histo_cost;
-	if(extra <= 0.0f) 
+	if(extra <= 0.0f)
 		bin_id[0] = 0;
   	else if (extra < max_histo_cost) {
           bin_id[0] = (BinId)__fdiv_rd(extra, bin_width)+1; // +1 because first bin is cost < min_histo_cost
@@ -1355,9 +1359,9 @@ __global__ void update_beam_using_histogram_kernel(DeviceParams cst_dev_params,
     assert(KALDI_CUDA_DECODER_HISTO_NBINS < KALDI_CUDA_DECODER_1D_BLOCK);
     int bin_id = threadIdx.x;
     int val = 0;
-    if (bin_id < KALDI_CUDA_DECODER_HISTO_NBINS) 
+    if (bin_id < KALDI_CUDA_DECODER_HISTO_NBINS)
       val = cst_dev_params.d_histograms.lane(ilane)[bin_id];
-    
+
     int prefix_sum;
     BlockScan(temp_storage).ExclusiveSum(val, prefix_sum);
 

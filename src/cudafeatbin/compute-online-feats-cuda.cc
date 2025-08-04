@@ -16,7 +16,7 @@
 // limitations under the License.
 
 #if HAVE_CUDA == 1
-#include <nvToolsExt.h>
+#include <nvtx3/nvToolsExt.h>
 #endif
 #include "base/kaldi-common.h"
 #include "util/common-utils.h"
@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
   try {
     const char *usage =
       "Extract features and ivectors for utterances using the cuda online\n"
-      "feature pipeline. This class models the online feature pipeline.\n"  
+      "feature pipeline. This class models the online feature pipeline.\n"
       "\n"
       "Usage:  compute-online-feats-cuda [options] <wave-rspecifier> "
       "<ivector-wspecifier> <feats-wspecifier>\n"
