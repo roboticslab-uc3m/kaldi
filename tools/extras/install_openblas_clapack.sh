@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-OPENBLAS_VERSION=0.3.20
+OPENBLAS_VERSION=0.3.22
 CLAPACK_VERSION=3.2.1
 
-git clone -b v${OPENBLAS_VERSION} --depth 1 https://github.com/xianyi/OpenBLAS
-git clone -b v${CLAPACK_VERSION} --depth 1 https://github.com/alphacep/clapack
+git clone -b v${OPENBLAS_VERSION} --depth 1 https://github.com/OpenMathLib/OpenBLAS
+git clone -b v${CLAPACK_VERSION} --depth 1 https://github.com/roboticslab-uc3m/clapack
 
 make -j ${CORES:-1} -C OpenBLAS ONLY_CBLAS=1 DYNAMIC_ARCH=1 TARGET=NEHALEM USE_LOCKING=1 USE_THREAD=0 NUM_THREADS=512 all
 make -C OpenBLAS PREFIX=$(pwd)/OpenBLAS/install install
